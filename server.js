@@ -46,7 +46,7 @@ const upload = multer({
 });
 
 // Upload image to S3
-app.post("/upload", authenticateJWT, upload.single("image"), (req, res) => {
+app.post("/upload", authenticateJWT, upload.single("upload"), (req, res) => {
   const downloadUrl = `${process.env.APP_URL}/download/${req.file.key}`;
   res.json({ url: downloadUrl });
 });
