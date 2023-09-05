@@ -35,6 +35,10 @@ const upload = multer({
   storage: multerS3({
     s3: s3,
     bucket: process.env.BUCKET_NAME,
+    contentType: multerS3.AUTO_CONTENT_TYPE, // Automatically set the content type
+    metadata: function (req, file, cb) {
+      cb(null, { fieldName: file.fieldname });
+    },
     key: function (req, file, cb) {
       cb(null, Date.now().toString() + "-" + file.originalname);
     },
@@ -55,11 +59,13 @@ app.get("/download/:key", authenticateJWT, (req, res) => {
   };
 
   s3.getObject(params, (err, data) => {
+    console.log("s3.getObject // data:", data);
+
     if (err) {
       res.status(400).send(err);
       return;
     }
-    res.writeHead(200, { "Content-Type": "image/jpeg" });
+    res.writeHead(200, { "Content-Type": data.ContentType });
     res.end(data.Body);
   });
 });
